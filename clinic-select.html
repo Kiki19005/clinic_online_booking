@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>好健康診所｜線上掛號</title>
+  <meta name="description" content="好健康診所線上掛號服務" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🏥</text></svg>">
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    :root{--bg:#0b1020;--fg:#e5e7eb;--muted:#9aa3b2;--card:#0f172a;--border:#1f2937;--accent:#60a5fa;--ok:#34d399;--warn:#fbbf24;--err:#f87171;--radius:14px}
+    body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Noto Sans,'Helvetica Neue',Arial,'Apple Color Emoji','Segoe UI Emoji';background:var(--bg);color:var(--fg);line-height:1.6}
+    .container{max-width:980px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:rgba(11,16,32,.6);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid var(--border);z-index:20}
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6)}
+    main{padding:32px 0}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 10px 24px rgba(0,0,0,.25)}
+    .hero{display:grid;grid-template-columns:1.2fr 1fr;gap:20px;align-items:center}
+    .hero h1{margin:0 0 8px;font-size:clamp(24px,4vw,40px)}
+    .hero p{margin:0;color:var(--muted)}
+    .notice{display:flex;gap:10px;align-items:flex-start;border-left:4px solid var(--warn);padding:12px 14px;background:#2a1f0b22;border-radius:10px}
+    form{padding:18px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    label{display:block;font-weight:600;margin:8px 0 6px}
+    input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0c1328;color:var(--fg)}
+    input[type="date"]{padding:10px}
+    .row{display:flex;gap:12px;flex-wrap:wrap}
+    .slot{padding:10px 12px;border:1px solid var(--border);border-radius:999px;cursor:pointer;user-select:none}
+    .slot.active{background:var(--accent);color:#041226}
+    .slot.disabled{opacity:.45;pointer-events:none}
+    .actions{display:flex;gap:12px;justify-content:flex-end;margin-top:14px}
+    .btn{appearance:none;border:0;border-radius:999px;padding:12px 18px;font-weight:700;cursor:pointer}
+    .btn-primary{background:var(--accent);color:#041226}
+    .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--fg)}
+    .muted{color:var(--muted)}
+    .terms{display:flex;gap:10px;align-items:flex-start;margin-top:8px}
+    .footer{padding:24px;color:var(--muted);border-top:1px solid var(--border);text-align:center}
+    dialog{border:1px solid var(--border);border-radius:16px;background:var(--card);color:var(--fg);max-width:560px;width:calc(100% - 24px)}
+    dialog::backdrop{background:rgba(0,0,0,.5)}
+    .success{border-left:4px solid var(--ok);padding:12px 14px;background:#05281555;border-radius:10px}
+    .danger{border-left:4px solid var(--err);padding:12px 14px;background:#28050b55;border-radius:10px}
+    @media (max-width:900px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+  
+    /* 行動裝置最佳化 */
+    /* 避免 iOS 輸入框自動放大：確保字體 >= 16px */
+    input, select, textarea, button { font-size:16px; }
+    /* 觸控可點區塊高度 */
+    .slot, .btn { min-height:44px; }
+    /* 時段改用自適應網格，避免換行跑版 */
+    #slots { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px; }
+    .slot { width:100%; text-align:center; }
+    /* Header/Container 安全區（瀏海、導覽列） */
+    header { padding-left: max(12px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+    body { padding-bottom: env(safe-area-inset-bottom); }
+    /* 小螢幕排版與間距 */
+    @media (max-width: 768px){
+      .container{ padding:16px; }
+      main{ padding:16px 0; }
+      .hero{ grid-template-columns:1fr; gap:14px; }
+      .card{ border-radius:12px; }
+      .actions{ flex-direction:column; align-items:stretch; }
+      .actions .btn { width:100%; }
+    }
+    @media (max-width: 420px){
+      .nav{ flex-direction:column; align-items:flex-start; gap:6px; }
+      .brand{ font-size:16px; }
+      .notice{ font-size:14px; }
+      label{ font-size:14px; }
+    }
+    /* Dialog 寬度與滾動 */
+    dialog{ max-width:640px; width:calc(100% - 24px); }
+    dialog .container{ max-height:70vh; overflow:auto; }
+    </style>
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <span id="clinicTitle">好健康診所｜線上掛號</span>
+    </div>
+    <nav class="muted">服務時間：週一至週六 09:00–12:00、14:00–17:00、18:30–21:00</nav>
+  </div>
+</header>
+<main class="container">
+  <section class="hero">
+    <div>
+      <h1>快速完成掛號，現場報到更順暢</h1>
+      <p>此系統為示範用靜態頁面，不會實際送出資料；若要串接院所系統或 LINE 官方帳號，請交由工程端接 API 後台。</p>
+      <div class="notice" style="margin-top:12px"><strong>提醒：</strong><span>同一天僅能保留一個時段，請於門診開始前 10 分鐘到現場報到以完成看診序位。</span></div>
+    </div>
+    <div class="card">
+      <form id="regForm" novalidate>
+        <div class="grid">
+          <div>
+            <label for="dept">科別</label>
+            <select id="dept" required>
+              <option value="">— 請選擇 —</option>
+              <option value="fm">家醫科</option>
+              <option value="im">內科</option>
+              <option value="ped">小兒科</option>
+              <option value="derm">皮膚科</option>
+            </select>
+          </div>
+          <div>
+            <label for="doctor">醫師</label>
+            <select id="doctor" required disabled>
+              <option value="">— 先選科別 —</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label for="date">看診日期</label>
+            <input type="date" id="date" required />
+          </div>
+          <div>
+            <label>門診時段</label>
+            <div id="slots" class="row" role="listbox" aria-label="可選時段"></div>
+            <input type="hidden" id="slotValue" required />
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label for="name">姓名</label>
+            <input type="text" id="name" placeholder="王小明" required />
+          </div>
+          <div>
+            <label for="nid">身分證末四碼 / NHI 卡末四碼</label>
+            <input type="text" id="nid" inputmode="numeric" pattern="\\d{4}" placeholder="4 碼數字" required />
+          </div>
+        </div>
+        <div class="grid">
+          <div>
+            <label for="phone">手機號碼</label>
+            <input type="tel" id="phone" placeholder="09xx-xxx-xxx" pattern="^0\\d{9}$" required />
+          </div>
+          <div>
+            <label for="note">就醫備註（選填）</label>
+            <input type="text" id="note" placeholder="症狀、用藥提醒等" />
+          </div>
+        </div>
+        <div class="terms">
+          <input type="checkbox" id="agree" required />
+          <label for="agree" class="muted">我已閱讀並同意<a href="#" id="openPolicy">「隱私權與就醫告知事項」</a>，並同意於門診開始前完成報到。</label>
+        </div>
+        <div id="errorBox" class="danger" style="display:none;margin-top:10px"></div>
+        <div class="actions">
+          <button type="reset" class="btn btn-ghost">清除</button>
+          <button type="submit" class="btn btn-primary">送出掛號</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:18px;padding:16px">
+    <details>
+      <summary><strong>常見問題</strong></summary>
+      <p class="muted">此為示範頁，實際院所可依規定調整取號規則、取消/改期時限、慢箋領藥與健保卡實名等。</p>
+    </details>
+  </section>
+</main>
+
+<dialog id="policy">
+  <form method="dialog" class="container" style="padding:20px">
+    <h3 style="margin-top:0">隱私權與就醫告知事項</h3>
+    <p class="muted">本頁面僅示範前端操作；提交不會傳至伺服器。正式上線時，個資將依個資法與醫療法規定保護，僅於醫療服務必要範圍內使用。</p>
+    <div class="actions"><button class="btn btn-primary">我了解</button></div>
+  </form>
+</dialog>
+
+<dialog id="result">
+  <div class="container" style="padding:20px">
+    <div id="resultBox" class="success"></div>
+    <div class="actions" style="margin-top:12px;justify-content:space-between">
+      <button id="saveIcs" class="btn btn-ghost">加入行事曆（.ics）</button>
+      <button id="closeResult" class="btn btn-primary">完成</button>
+    </div>
+  </div>
+</dialog>
+
+<footer class="footer">© <span id="year"></span> <span id="clinicFooter">好健康診所</span> · 示範用線上掛號頁面</footer>
+
+<script>
+    // === 新增：讀取 URL 的 clinic 參數，動態替換診所名稱 ===
+  function getClinicFromQuery(){
+    const params = new URLSearchParams(location.search);
+    return (params.get('clinic') || '').trim();
+  }
+  const clinicName = getClinicFromQuery() || '好健康診所';
+
+  // 改瀏覽器分頁標題、SEO 描述（可選）
+  document.title = `${clinicName}｜線上掛號`;
+  const desc = document.querySelector('meta[name="description"]');
+  if (desc) desc.setAttribute('content', `${clinicName}線上掛號服務`);
+
+  // 改頁面可見文字
+  window.addEventListener('DOMContentLoaded', () => {
+    const t = document.getElementById('clinicTitle');
+    const f = document.getElementById('clinicFooter');
+    if (t) t.textContent = `${clinicName}｜線上掛號`;
+    if (f) f.textContent = clinicName;
+  });
+
+
+  const doctors = {
+    fm: [{id:'liu', name:'劉家安 醫師', slots:['09:10','09:20','09:40','14:10','14:30','18:40','19:00']}],
+    im: [{id:'chen', name:'陳怡君 醫師', slots:['09:10','09:30','09:50','14:10','14:20','19:10']}],
+    ped:[{id:'wu',  name:'吳柏翰 醫師', slots:['09:00','09:20','14:00','14:20','18:40']}],
+    derm:[{id:'lin', name:'林品妤 醫師', slots:['10:00','10:20','15:00','15:20','19:40']}]
+  };
+
+  const deptEl = document.getElementById('dept');
+  const doctorEl = document.getElementById('doctor');
+  const dateEl = document.getElementById('date');
+  const slotsEl = document.getElementById('slots');
+  const slotValue = document.getElementById('slotValue');
+  const errorBox = document.getElementById('errorBox');
+  const policy = document.getElementById('policy');
+  const openPolicy = document.getElementById('openPolicy');
+  const result = document.getElementById('result');
+  const resultBox = document.getElementById('resultBox');
+  const saveIcs = document.getElementById('saveIcs');
+  const closeResult = document.getElementById('closeResult');
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // 預設日期為今日+1（避免選到今日已過時段），限制可約未來 30 天
+  const today = new Date();
+  today.setDate(today.getDate()+1);
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  dateEl.min = `${yyyy}-${mm}-${dd}`;
+  const maxDate = new Date(today); maxDate.setDate(today.getDate()+30);
+  dateEl.max = `${maxDate.getFullYear()}-${String(maxDate.getMonth()+1).padStart(2,'0')}-${String(maxDate.getDate()).padStart(2,'0')}`;
+  dateEl.value = dateEl.min;
+
+  deptEl.addEventListener('change', () => {
+    slotValue.value = '';
+    slotsEl.innerHTML = '';
+    doctorEl.innerHTML = '<option value=\"\">— 請選擇醫師 —</option>';
+    const list = doctors[deptEl.value] || [];
+    for (const d of list){
+      const opt = document.createElement('option');
+      opt.value = d.id; opt.textContent = d.name;
+      doctorEl.appendChild(opt);
+    }
+    doctorEl.disabled = list.length === 0;
+  });
+
+  doctorEl.addEventListener('change', renderSlots);
+  dateEl.addEventListener('change', renderSlots);
+
+  function renderSlots(){
+    slotValue.value='';
+    slotsEl.innerHTML='';
+    errorBox.style.display='none';
+    const dept = deptEl.value, docId = doctorEl.value;
+    if(!dept || !docId) return;
+    const doc = (doctors[dept] || []).find(d => d.id === docId);
+    if(!doc) return;
+    // 模擬：週日休診
+    const date = new Date(dateEl.value);
+    const isSunday = date.getDay() === 0;
+    for (const t of doc.slots){
+      const btn = document.createElement('button');
+      btn.type='button'; btn.className='slot';
+      btn.textContent=t;
+      if (isSunday) btn.classList.add('disabled');
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+        btn.classList.add('active'); ensureInView(btn);
+        slotValue.value = t;
+      });
+      slotsEl.appendChild(btn);
+    }
+  }
+
+  openPolicy.addEventListener('click', (e)=>{ e.preventDefault(); policy.showModal(); });
+
+  function showError(msg){
+    errorBox.textContent = msg;
+    errorBox.style.display = 'block';
+    errorBox.focus();
+  }
+
+  document.getElementById('regForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    errorBox.style.display='none';
+    const fields = ['dept','doctor','date','slotValue','name','nid','phone','agree'];
+    for (const id of fields){
+      const el = document.getElementById(id) || (id==='agree' && document.getElementById('agree'));
+      if (id==='agree'){ if(!document.getElementById('agree').checked) return showError('請勾選同意條款後再送出。'); continue; }
+      if(!el || !el.value){ return showError('請完整填寫必填欄位並選擇門診時段。'); }
+      if(el.id==='nid' && !/^\d{4}$/.test(el.value)) return showError('身分證/健保卡末四碼請填 4 碼數字。');
+      if(el.id==='phone' && !/^0\d{9}$/.test(el.value)) return showError('手機格式需為 10 碼數字（例如 09xxxxxxxx）。');
+    }
+    const deptName = deptEl.options[deptEl.selectedIndex].textContent;
+    const docName = doctorEl.options[doctorEl.selectedIndex].textContent;
+    const summary = `您已成功預約「${deptName}／${docName}」於 ${dateEl.value} 的 ${slotValue.value} 時段。\n此頁僅示範前端畫面，未串接後端。`;
+    resultBox.textContent = summary;
+    result.showModal();
+  });
+
+  closeResult.addEventListener('click', ()=>result.close());
+
+  // 下載 ICS
+  saveIcs.addEventListener('click', ()=>{
+    const deptName = deptEl.options[deptEl.selectedIndex]?.textContent || '門診';
+    const docName = doctorEl.options[doctorEl.selectedIndex]?.textContent || '醫師';
+    if(!slotValue.value || !dateEl.value) return showError('請先完成掛號送出。');
+    const [h,m] = slotValue.value.split(':');
+    const start = new Date(dateEl.value+'T'+h.padStart(2,'0')+':'+m.padStart(2,'0')+':00');
+    const end = new Date(start.getTime()+20*60000); // 20 分鐘區間
+    function toICS(dt){ const y=dt.getFullYear(); const mo=String(dt.getMonth()+1).padStart(2,'0'); const d=String(dt.getDate()).padStart(2,'0'); const hh=String(dt.getHours()).padStart(2,'0'); const mm=String(dt.getMinutes()).padStart(2,'0'); return `${y}${mo}${d}T${hh}${mm}00`; }
+    const ics =
+`BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Demo Clinic//Online Booking//ZH
+BEGIN:VEVENT
+UID:${Date.now()}@demo-clinic
+DTSTAMP:${toICS(new Date())}
+DTSTART:${toICS(start)}
+DTEND:${toICS(end)}
+SUMMARY:${deptName}門診（${docName}）
+DESCRIPTION:此為示範用掛號行程，實際看診以院所通知為準。
+LOCATION:好健康診所
+END:VEVENT
+END:VCALENDAR`;
+    const blob = new Blob([ics], {type:'text/calendar;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='clinic-booking.ics'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  });
+
+  // 小螢幕使用者體驗：選到時段後將表單操作區帶入視野
+  function ensureInView(el){
+    if (window.innerWidth < 768){
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+
+</script>
+</body>
+</html>

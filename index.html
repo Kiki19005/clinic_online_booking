@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>選擇診所</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+    body { margin: 0; background: #f6f7fb; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 24px 16px 40px; }
+    .card {
+      background: #fff; border-radius: 16px; padding: 18px 16px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.08);
+    }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    p { margin: 0 0 16px; color: #444; line-height: 1.6; }
+    label { display: block; font-size: 14px; color: #222; margin: 12px 0 8px; }
+    select {
+      width: 100%; padding: 12px 12px; border-radius: 12px;
+      border: 1px solid #d7dbe7; font-size: 16px; background: #fff;
+      outline: none;
+    }
+    select:focus { border-color: #6b7cff; box-shadow: 0 0 0 4px rgba(107,124,255,.15); }
+    .row { display: flex; gap: 10px; margin-top: 14px; }
+    button, a.btn {
+      flex: 1; display: inline-flex; justify-content: center; align-items: center;
+      padding: 12px 12px; border-radius: 12px; border: 0;
+      font-size: 16px; cursor: pointer; text-decoration: none;
+      user-select: none;
+    }
+    button.primary { background: #2f6bff; color: #fff; }
+    button.ghost { background: #eef2ff; color: #1f3fbf; }
+    button:disabled, a.btn[aria-disabled="true"] {
+      opacity: .55; cursor: not-allowed;
+    }
+    .hint {
+      margin-top: 12px; padding: 12px; border-radius: 12px;
+      background: #f2f4f8; color: #333; font-size: 14px; line-height: 1.6;
+    }
+    .small { font-size: 12px; color: #666; margin-top: 10px; }
+    .pill {
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      background: #e8fff1; color: #0f6b3b; font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>請先選擇要服務的診所</h1>
+      <p>選好後再點「前往線上掛號」，系統就會帶你到該診所的掛號頁；你也可以之後再回來切換。</p>
+
+      <label for="clinicSelect">診所</label>
+      <select id="clinicSelect">
+        <option value="" selected disabled>請選擇診所…</option>
+        <option value="祐雙診所">祐雙診所</option>
+        <option value="愛鄰診所">愛鄰診所</option>
+        <option value="徐醫師診所">徐醫師診所</option>
+        <option value="鍾兆智婦產科診所">鍾兆智婦產科診所</option>
+        <option value="施耳鼻喉科診所">施耳鼻喉科診所</option>
+        <option value="大愛眼科診所">大愛眼科診所</option>
+        <option value="魏之明小兒科診所">魏之明小兒科診所</option>
+        <option value="日新診所">日新診所</option>
+        <option value="祐生復健科診所">祐生復健科診所</option>
+        <option value="焉醫師診所">焉醫師診所</option>
+    </select>
+    
+
+      <div class="row">
+        <button id="saveBtn" class="primary" disabled>儲存選擇</button>
+        <button id="clearBtn" class="ghost" disabled>清除</button>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <a id="goRegBtn" class="btn primary" href="#" aria-disabled="true">前往線上掛號</a>
+      </div>
+
+      <div id="status" class="hint" style="display:none;"></div>
+      <div class="small">提示：此頁會將「目前選定診所」保存在本機瀏覽器（localStorage），方便你在其他頁面或 LIFF 流程直接讀取並跳轉。</div>
+    </div>
+  </div>
+
+  <script>
+    // 你可以在這裡把各診所的掛號網址補上（沒有網址就先留空字串）
+    const REG_URL_MAP = {
+      "祐雙診所": "",
+      "愛鄰診所": "",
+      "徐醫師診所": "",
+      "鍾兆智婦產科診所": "",
+      "施耳鼻喉科診所": "",
+      "大愛眼科診所": "",
+      "魏之明小兒科診所": "",
+      "日新診所": "",
+      "祐生復健科診所": "",
+      "焉醫師診所": "https://kiki19005.github.io/clinic_online_booking/"
+    };
+
+    const LS_KEY = "selectedClinic";
+
+    const selectEl = document.getElementById("clinicSelect");
+    selectEl.addEventListener('change', () => {
+    const clinic = selectEl.value;
+    // 直接跳到掛號頁（把 reg.html 換成你的檔名/路徑）
+    location.href = `https://kiki19005.github.io/clinic_online_booking/clinic-select.html?clinic=${encodeURIComponent(clinic)}`;
+  });
+    const saveBtn = document.getElementById("saveBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const statusEl = document.getElementById("status");
+    const goRegBtn = document.getElementById("goRegBtn");
+
+    
+
+    function setStatus(html, show = true) {
+      statusEl.innerHTML = html;
+      statusEl.style.display = show ? "block" : "none";
+    }
+
+    function setGoButton(clinicName) {
+      const url = REG_URL_MAP[clinicName] || "";
+      if (!clinicName) {
+        goRegBtn.setAttribute("aria-disabled", "true");
+        goRegBtn.href = "#";
+        return;
+      }
+      if (!url) {
+        goRegBtn.setAttribute("aria-disabled", "true");
+        goRegBtn.href = "#";
+        return;
+      }
+      goRegBtn.removeAttribute("aria-disabled");
+      goRegBtn.href = url;
+      goRegBtn.target = "_blank";
+      goRegBtn.rel = "noopener noreferrer";
+    }
+
+    function syncUI() {
+      const chosen = selectEl.value;
+      saveBtn.disabled = !chosen;
+      clearBtn.disabled = !localStorage.getItem(LS_KEY);
+
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        setStatus(`目前已選定：<span class="pill">${saved}</span>`);
+        setGoButton(saved);
+      } else {
+        setStatus("目前尚未儲存選擇，請先從下拉選單選一間診所。");
+        setGoButton("");
+      }
+    }
+
+    // 初始化：若之前有保存過，讓選單自動選到該診所
+    (function init() {
+      const saved = localStorage.getItem(LS_KEY);
+      if (saved) {
+        for (const opt of selectEl.options) {
+          if (opt.value === saved) {
+            selectEl.value = saved;
+            break;
+          }
+        }
+      }
+      syncUI();
+    })();
+
+    selectEl.addEventListener("change", () => {
+      const chosen = selectEl.value;
+      setStatus(`已選擇：<span class="pill">${chosen}</span>（尚未儲存）`);
+      setGoButton(chosen); // 如果你希望「未儲存也可前往」，保留這行；若要強制儲存後才可前往，把這行改成 setGoButton("")
+      syncUI();
+    });
+
+    saveBtn.addEventListener("click", () => {
+      const chosen = selectEl.value;
+      if (!chosen) return;
+      localStorage.setItem(LS_KEY, chosen);
+      setStatus(`已儲存：<span class="pill">${chosen}</span>`);
+      setGoButton(chosen);
+      syncUI();
+    });
+
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem(LS_KEY);
+      selectEl.value = "";
+      setStatus("已清除選定診所，請重新選擇。");
+      setGoButton("");
+      syncUI();
+    });
+
+    // 避免在 aria-disabled 狀態下仍然跳轉
+    goRegBtn.addEventListener("click", (e) => {
+      if (goRegBtn.getAttribute("aria-disabled") === "true") {
+        e.preventDefault();
+        const saved = localStorage.getItem(LS_KEY);
+        if (!saved) {
+          setStatus("請先選擇並儲存診所，或先在對照表填入該診所的掛號網址。");
+        } else {
+          setStatus(`你已選定：<span class="pill">${saved}</span>，但目前此診所的掛號網址尚未設定。`);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+
